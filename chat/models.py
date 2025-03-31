@@ -1,3 +1,34 @@
 from django.db import models
+from django.conf import settings
 
-# Create your models here.
+class Conversation(models.Model):
+    """Model for both direct and group conversations."""
+    name = models.CharField(max_length=255, blank=True, null=True)
+    is_group = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # For group chats
+    description = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to='group_avatars/', null=True, blank=True)
+    
+    # If a chatbot is added to the conversation
+    has_ai = models.BooleanField(default=False)
+    
+    AI_PROVIDERS = [
+        ('OPEN_AI', 'OpenAI'),
+        ('ANTHROPIC', 'Anthropic'),
+    ]
+
+    ai_provider = models.CharField(
+        max_length=100,
+        choices=AI_PROVIDERS,
+        blank=True,
+        null=True
+    )
+    
+    class Meta:
+        ordering = ['-updated_at']
+    
+    def __str__(self):
+        return self.name or f"Conversation {self.id}"
