@@ -132,5 +132,39 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'reaction': data['reaction']
                 }
             )
+
+    async def chat_message(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'message',
+            'message': event['message'],
+            'sender_id': event['sender_id'],
+            'sender_username': event['sender_username'],
+            'message_id': event['message_id'],
+            'timestamp': event['timestamp']
+        }))
+
+    async def typing_indicator(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'typing',
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'is_typing': event['is_typing']
+        }))
     
+    async def message_reaction(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'reaction',
+            'message_id': event['message_id'],
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'reaction': event['reaction']
+        })
     
+    @database_sync_to_async
+    def update_user_status(self, user_id, is_online):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user = User.objects.get(id=user_id)
+        user.is_online = is_online
+        user.last_activity = timezone.now()
+        user.save()
