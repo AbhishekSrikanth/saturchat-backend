@@ -73,6 +73,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'saturchat.wsgi.application'
+ASGI_APPLICATION = 'saturchat.asgi.application'
 
 
 # Database
