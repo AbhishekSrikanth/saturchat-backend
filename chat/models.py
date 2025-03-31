@@ -75,3 +75,17 @@ class Attachment(models.Model):
     
     def __str__(self):
         return f"Attachment {self.id} for Message {self.message.id}"
+    
+
+class Reaction(models.Model):
+    """Emoji reactions to messages."""
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='reactions')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    reaction = models.CharField(max_length=10)  # Unicode emoji
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['message', 'user', 'reaction']
+    
+    def __str__(self):
+        return f"{self.reaction} by {self.user.username}"
