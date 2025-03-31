@@ -3,7 +3,7 @@ from django.utils import timezone
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from chat.models import Conversation, Message
+from chat.models import Conversation, Message, Participant
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -44,6 +44,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user = self.scope['user']
         if not user.is_anonymous:
             await self.update_user_status(user.id, False)
+
+    @database_sync_to_async
+    def is_participant(self, user_id, conversation_id):
+        return Participant.objects.filter(
+            user_id=user_id,
+            conversation_id=conversation_id
+        ).exists()
 
     @database_sync_to_async
     def save_message(self, user_id, conversation_id, encrypted_content):
