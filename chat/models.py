@@ -89,3 +89,14 @@ class Reaction(models.Model):
     
     def __str__(self):
         return f"{self.reaction} by {self.user.username}"
+    
+
+class EncryptionKey(models.Model):
+    """Public keys for end-to-end encryption."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='encryption_key')
+    public_key = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Key for {self.user.username}"
