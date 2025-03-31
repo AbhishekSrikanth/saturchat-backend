@@ -64,3 +64,14 @@ class Message(models.Model):
     
     def __str__(self):
         return f"Message {self.id} in {self.conversation}"
+    
+
+class Attachment(models.Model):
+    """Files attached to messages."""
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachments')
+    encrypted_file = models.FileField(upload_to='attachments/')
+    file_type = models.CharField(max_length=100)
+    file_name = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"Attachment {self.id} for Message {self.message.id}"
