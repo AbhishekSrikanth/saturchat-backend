@@ -1,4 +1,9 @@
+import json
+from django.utils import timezone
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+
+from chat.models import Conversation, Message
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -39,5 +44,86 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user = self.scope['user']
         if not user.is_anonymous:
             await self.update_user_status(user.id, False)
+
+    @database_sync_to_async
+    def save_message(self, user_id, conversation_id, encrypted_content):
+        message = Message.objects.create(
+            conversation_id=conversation_id,
+            sender_id=user_id,
+            encrypted_content=encrypted_content
+        )
+        
+        # Update conversation's last update time
+        conversation = Conversation.objects.get(id=conversation_id)
+        conversation.updated_at = timezone.now()
+        conversation.save()
+        
+        return message
+    
+    @database_sync_to_async
+    def save_reaction(self, user_id, message_id, reaction):
+        from .models import Reaction
+        Reaction.objects.create(
+            message_id=message_id,
+            user_id=user_id,
+            reaction=reaction
+        )
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        message_type = data.get('type', 'message')
+        
+        if message_type == 'message':
+            # Store the encrypted message
+            message = await self.save_message(
+                user_id=self.scope['user'].id,
+                conversation_id=self.conversation_id,
+                encrypted_content=data['message']
+            )
+            
+            # Forward to the group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': data['message'],
+                    'sender_id': self.scope['user'].id,
+                    'sender_username': self.scope['user'].username,
+                    'message_id': message.id,
+                    'timestamp': message.created_at.isoformat()
+                }
+            )
+        
+        elif message_type == 'typing':
+            # Forward typing indicator
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'typing_indicator',
+                    'user_id': self.scope['user'].id,
+                    'username': self.scope['user'].username,
+                    'is_typing': data['is_typing']
+                }
+            )
+        
+        elif message_type == 'reaction':
+            # Handle reaction
+            await self.save_reaction(
+                user_id=self.scope['user'].id,
+                message_id=data['message_id'],
+                reaction=data['reaction']
+            )
+            
+            # Forward to the group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'message_reaction',
+                    'message_id': data['message_id'],
+                    'user_id': self.scope['user'].id,
+                    'username': self.scope['user'].username,
+                    'reaction': data['reaction']
+                }
+            )
     
     
