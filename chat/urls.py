@@ -3,8 +3,10 @@ from chat import views
 
 urlpatterns = [
     # User endpoints
-    path('users/', views.UserViewSet.as_view({'get': 'list'}), name='user-list'),
-    path('users/<int:pk>/', views.UserViewSet.as_view({'get': 'retrieve'}), name='user-detail'),
+    path(
+        'users/', views.UserViewSet.as_view({'get': 'list'}), name='user-list'),
+    path('users/<int:pk>/',
+         views.UserViewSet.as_view({'get': 'retrieve'}), name='user-detail'),
 
     # Conversation endpoints
     path('conversations/', views.ConversationViewSet.as_view({'get': 'list', 'post': 'create'}),
@@ -16,7 +18,8 @@ urlpatterns = [
     path('conversations/<int:conversation_pk>/messages/',
          views.MessageViewSet.as_view({'get': 'list', 'post': 'create'}), name='message-list'),
     path('conversations/<int:conversation_pk>/messages/<int:pk>/',
-         views.MessageViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
+         views.MessageViewSet.as_view(
+             {'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
          name='message-detail'),
 
     # Encryption key endpoints
