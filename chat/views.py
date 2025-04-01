@@ -58,7 +58,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
             participants__user=self.request.user
         ).distinct()
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         is_group = request.data.get('is_group', False)
         participant_ids = request.data.get('participants', [])
 
