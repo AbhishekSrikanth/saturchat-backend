@@ -157,30 +157,13 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsParticipant]
 
     def get_queryset(self):
         conversation_id = self.kwargs.get('conversation_pk')
-        # Verify user has access to this conversation
-        if not Participant.objects.filter(
-            user=self.request.user,
-            conversation_id=conversation_id
-        ).exists():
-            return Message.objects.none()
-
         return Message.objects.filter(conversation_id=conversation_id)
 
     def create(self, request, conversation_pk=None):
-        # Check if user is participant
-        try:
-            participant = Participant.objects.get(
-                user=request.user,
-                conversation_id=conversation_pk
-            )
-        except Participant.DoesNotExist:
-            return Response({'error': 'You are not a participant in this conversation'},
-                            status=status.HTTP_403_FORBIDDEN)
-
         # Create message
         message = Message.objects.create(
             conversation_id=conversation_pk,
