@@ -15,4 +15,4 @@ class User(AbstractUser):
     anthropic_api_key = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.username
+        return str(self.username)
