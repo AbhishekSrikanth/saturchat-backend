@@ -1,0 +1,14 @@
+django==4.2.7
+djangorestframework==3.14.0
+django-cors-headers==4.3.0
+channels==4.0.0
+channels-redis==4.1.0
+daphne==4.0.0
+celery==5.3.4
+redis==5.0.1
+psycopg2-binary==2.9.9
+django-allauth==0.58.2
+pycryptodome==3.19.0
+python-dotenv==1.0.0
+pillow==10.1.0
+requests==2.31.0
