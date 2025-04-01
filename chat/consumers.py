@@ -158,7 +158,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'user_id': event['user_id'],
             'username': event['username'],
             'reaction': event['reaction']
-        })
+        }))
     
     @database_sync_to_async
     def update_user_status(self, user_id, is_online):
