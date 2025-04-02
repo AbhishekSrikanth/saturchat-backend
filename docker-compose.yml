@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=saturchat
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  celery:
+    build: .
+    command: celery -A saturchat worker -l INFO
+    depends_on:
+      - web
+      - redis
+    env_file:
+      - .env
+
+  celery-beat:
+    build: .
+    command: celery -A saturchat beat -l INFO
+    depends_on:
+      - web
+      - redis
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
