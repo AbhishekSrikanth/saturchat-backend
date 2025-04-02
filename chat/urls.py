@@ -1,30 +1,19 @@
-from django.urls import path
-from chat import views
+from rest_framework_nested import routers
+from django.urls import path, include
+from . import views
+
+router = routers.SimpleRouter()
+router.register(r'users', views.UserViewSet, basename='user')
+router.register(r'conversations', views.ConversationViewSet, basename='conversation')
+
+# Nested routes for messages within conversations
+conversation_router = routers.NestedSimpleRouter(router, r'conversations', lookup='conversation')
+conversation_router.register(r'messages', views.MessageViewSet, basename='conversation-messages')
+
+# Encryption keys endpoint
+router.register(r'encryption-keys', views.EncryptionKeyViewSet, basename='encryption-key')
 
 urlpatterns = [
-    # User endpoints
-    path(
-        'users/', views.UserViewSet.as_view({'get': 'list'}), name='user-list'),
-    path('users/<int:pk>/',
-         views.UserViewSet.as_view({'get': 'retrieve'}), name='user-detail'),
-
-    # Conversation endpoints
-    path('conversations/', views.ConversationViewSet.as_view({'get': 'list', 'post': 'create'}),
-         name='conversation-list'),
-    path('conversations/<int:pk>/', views.ConversationViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
-         name='conversation-detail'),
-
-    # Message endpoints (nested under conversations)
-    path('conversations/<int:conversation_pk>/messages/',
-         views.MessageViewSet.as_view({'get': 'list', 'post': 'create'}), name='message-list'),
-    path('conversations/<int:conversation_pk>/messages/<int:pk>/',
-         views.MessageViewSet.as_view(
-             {'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
-         name='message-detail'),
-
-    # Encryption key endpoints
-    path('encryption-keys/', views.EncryptionKeyViewSet.as_view({'post': 'create'}),
-         name='encryption-key-list'),
-    path('encryption-keys/<int:pk>/',
-         views.EncryptionKeyViewSet.as_view({'get': 'retrieve'}), name='encryption-key-detail'),
+    path('', include(router.urls)),
+    path('', include(conversation_router.urls)),
 ]
