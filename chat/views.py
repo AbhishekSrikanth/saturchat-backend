@@ -62,6 +62,11 @@ class ConversationViewSet(viewsets.ModelViewSet):
         is_group = request.data.get('is_group', False)
         participant_ids = request.data.get('participants', [])
 
+        # Ensure only one participant is allowed for non-group conversations
+        if not is_group and len(participant_ids) > 1:
+            return Response({'error': 'Only one participant is allowed for non-group conversations'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         # For direct messages, ensure we don't create duplicates
         if not is_group and len(participant_ids) == 1:
             other_user_id = participant_ids[0]
