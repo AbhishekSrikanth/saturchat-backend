@@ -5,8 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from chat.models import Conversation, Message, Participant, Reaction, EncryptionKey
 from chat.serializers import (
-    ConversationSerializer, MessageSerializer, UserSerializer,
-    ParticipantSerializer, ReactionSerializer
+    ConversationSerializer, MessageSerializer
 )
 
 User = get_user_model()
@@ -20,33 +19,6 @@ class IsParticipant(permissions.BasePermission):
             user=request.user,
             conversation=obj
         ).exists()
-
-
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    @action(detail=False, methods=['get'])
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
-    def search(self, request):
-        query = request.query_params.get('q', '')
-        if len(query) < 3:
-            return Response({'error': 'Search query must be at least 3 characters'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        users = User.objects.filter(
-            Q(username__icontains=query) |
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query)
-        ).exclude(id=request.user.id)
-
-        serializer = self.get_serializer(users, many=True)
-        return Response(serializer.data)
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
