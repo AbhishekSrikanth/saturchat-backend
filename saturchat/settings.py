@@ -44,17 +44,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party
-    'rest_framework',
-    'rest_framework.authtoken',
     'corsheaders',
     'channels',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
     'allauth',
     'allauth.account',
+    'dj_rest_auth.registration',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
 
     # Local apps
     'accounts',
