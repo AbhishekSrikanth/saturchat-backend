@@ -76,6 +76,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'saturchat.urls'
 
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_HTTPONLY": False,
+}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
