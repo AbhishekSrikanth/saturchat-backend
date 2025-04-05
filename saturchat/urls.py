@@ -9,5 +9,5 @@ urlpatterns = [
     # API routes
     path('api/auth/', include('accounts.urls.auth')),
     path('api/users/', include('accounts.urls.users')),
-    path('api/chat', include('chat.urls')),
+    path('api/chat/', include('chat.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
