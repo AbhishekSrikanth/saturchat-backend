@@ -3,7 +3,6 @@ from django.urls import path, include
 from . import views
 
 router = routers.SimpleRouter()
-router.register(r'users', views.UserViewSet, basename='user')
 router.register(r'conversations', views.ConversationViewSet, basename='conversation')
 
 # Nested routes for messages within conversations
