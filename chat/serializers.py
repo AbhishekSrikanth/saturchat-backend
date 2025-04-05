@@ -2,13 +2,11 @@ from rest_framework import serializers
 from .models import Conversation, Message, Participant, Reaction, Attachment
 from django.contrib.auth import get_user_model
 
+from accounts.serializers import UserSerializer
+
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 
-                 'avatar', 'is_online', 'last_activity']
+
 
 class ParticipantSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
