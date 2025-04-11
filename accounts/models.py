@@ -9,6 +9,7 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     is_online = models.BooleanField(default=False)
     last_activity = models.DateTimeField(null=True, blank=True)
+    is_bot = models.BooleanField(default=False)
 
     # Store encrypted API keys for external AI services
     openai_api_key = models.CharField(max_length=255, blank=True, null=True)
