@@ -49,43 +49,35 @@ def update_user_status():
 
 @shared_task
 def process_ai_message_task(conversation_id, message_id):
-    """
-    Process messages sent in conversations with AI integrations.
-    """
 
     try:
         message = Message.objects.get(id=message_id)
         conversation = Conversation.objects.get(id=conversation_id)
 
-        if not conversation.has_ai:
-            return "Conversation has no AI"
+        # Look for bot users among the participants
+        bots = conversation.participants.filter(user__is_bot=True)
 
-        # Find the user who owns the API key
-        owner = conversation.participants.filter(is_admin=True).first()
-        if not owner:
-            return "No admin found for AI conversation"
+        for bot_participant in bots:
+            user = bot_participant.user
+            if user.username.lower() == 'chatgpt':
+                api_key_encrypted = user.openai_api_key
+                provider = 'openai'
+            elif user.username.lower() == 'claude':
+                api_key_encrypted = user.anthropic_api_key
+                provider = 'anthropic'
+            else:
+                continue
 
-        # Get the appropriate API key
-        if conversation.ai_provider == 'openai':
-            api_key_encrypted = owner.user.openai_api_key
-        elif conversation.ai_provider == 'anthropic':
-            api_key_encrypted = owner.user.anthropic_api_key
-        else:
-            return f"Unsupported AI provider: {conversation.ai_provider}"
+            if api_key_encrypted:
+                process_ai_message.delay(
+                    conversation_id=conversation.id,
+                    message_content=message.encrypted_content,
+                    user_id=user.id,
+                    ai_provider=provider,
+                    api_key_encrypted=api_key_encrypted
+                )
 
-        if not api_key_encrypted:
-            return "No API key found"
-
-        # Process the message asynchronously
-        process_ai_message.delay(
-            conversation_id=conversation_id,
-            message_content=message.encrypted_content,
-            user_id=owner.user.id,
-            ai_provider=conversation.ai_provider,
-            api_key_encrypted=api_key_encrypted
-        )
-
-        return "AI message processing started"
+        return "Triggered AI tasks for available bots"
 
     except (Message.DoesNotExist, Conversation.DoesNotExist) as e:
         return f"Error: {str(e)}"
