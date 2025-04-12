@@ -1,10 +1,11 @@
 import json
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.contrib.auth import get_user_model
-
+from chat.tasks import process_ai_message_task
 from chat.models import Conversation, Message, Participant, Reaction
+
 
 User = get_user_model()
 
@@ -45,17 +46,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user_info = await self.get_user_info(user_id)
 
         if data.get('type') == 'message':
+            content = data['message']
             message = await self.save_message(user_id, self.conversation_id, data['message'])
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'chat_message',
-                    'message': data['message'],
+                    'message': content,
                     'sender': user_info,
                     'message_id': message.id,
                     'timestamp': message.created_at.isoformat(),
                 }
             )
+
+            await self.handle_ai_mention_if_needed(content, message.id)
 
         elif data.get('type') == 'typing':
             await self.channel_layer.group_send(
@@ -153,3 +157,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'id': None,
                 'username': 'Unknown',
             }
+
+
+    @database_sync_to_async
+    def handle_ai_mention_if_needed(self, content, message_id):
+        """Trigger AI response if @chatgpt or @claude is mentioned."""
+
+        if not content:
+            return
+
+        mentioned_bot = None
+        content_lower = content.lower()
+
+        if '@chatgpt' in content_lower:
+            mentioned_bot = 'OPEN_AI'
+        elif '@claude' in content_lower:
+            mentioned_bot = 'ANTHROPIC'
+
+        if not mentioned_bot:
+            return  # No AI mention
+
+        try:
+            message = Message.objects.get(id=message_id)
+            conversation = message.conversation
+
+            if not conversation.has_ai or conversation.ai_provider != mentioned_bot:
+                return  # AI not configured or mismatched provider
+
+            # Trigger Celery task
+            process_ai_message_task.delay(
+                conversation_id=conversation.id,
+                message_id=message.id
+            )
+        except Exception as e:
+            print(f"[AI Trigger Error] {str(e)}")
