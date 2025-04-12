@@ -59,9 +59,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
         conversation = Conversation.objects.create(
             name=request.data.get('name'),
             is_group=is_group,
-            description=request.data.get('description', ''),
-            has_ai=request.data.get('has_ai', False),
-            ai_provider=request.data.get('ai_provider')
+            description=request.data.get('description', '')
         )
 
         # Add participants

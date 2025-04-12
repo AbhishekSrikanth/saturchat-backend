@@ -14,21 +14,6 @@ class Conversation(models.Model):
     avatar = models.ImageField(
         upload_to='group_avatars/', null=True, blank=True)
 
-    # If a chatbot is added to the conversation
-    has_ai = models.BooleanField(default=False)
-
-    AI_PROVIDERS = [
-        ('OPEN_AI', 'OpenAI'),
-        ('ANTHROPIC', 'Anthropic'),
-    ]
-
-    ai_provider = models.CharField(
-        max_length=100,
-        choices=AI_PROVIDERS,
-        blank=True,
-        null=True
-    )
-
     class Meta:
         ordering = ['-updated_at']
 
