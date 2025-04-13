@@ -106,6 +106,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message_id': event['message_id'],
         }))
 
+    async def conversation_updated(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "conversation_updated",
+            "conversation_id": event["conversation_id"],
+        }))
+
+
     @database_sync_to_async
     def is_participant(self, user_id, conversation_id):
         return Participant.objects.filter(user_id=user_id, conversation_id=conversation_id).exists()
