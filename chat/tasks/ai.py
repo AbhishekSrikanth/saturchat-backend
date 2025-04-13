@@ -3,7 +3,7 @@ import logging
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from chat.models import Conversation, Message
-from chat.tasks.utils import send_fallback_message
+from chat.utils import send_fallback_message
 from chat.llms.openai import get_openai_response
 from chat.llms.anthropic import get_anthropic_response
 

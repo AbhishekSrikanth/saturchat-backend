@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from chat.models import Conversation, Message, Participant, Reaction
+from chat.utils import user_object_to_dict
 
 
 User = get_user_model()
@@ -148,16 +149,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def get_user_info(self, user_id):
         try:
             user = User.objects.get(id=user_id)
-            return {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'avatar': user.avatar.url if user.avatar else None,
-                'is_online': user.is_online,
-                'last_activity': user.last_activity.isoformat() if user.last_activity else None,
-            }
+            return user_object_to_dict(user)
         except User.DoesNotExist:
             return {
                 'id': None,
