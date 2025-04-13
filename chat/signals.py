@@ -1,7 +1,9 @@
 import logging
+from asgiref.sync import async_to_sync
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from channels.layers import get_channel_layer
 from chat.models import Message
 from chat.tasks.ai import process_ai_message_task
 
@@ -9,11 +11,24 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Message)
 def handle_new_message(sender, instance, created, **kwargs):
-    if not created or instance.is_ai_generated:
+    if not created:
         return
 
     content = instance.encrypted_content.lower()
     conversation = instance.conversation
+    channel_layer = get_channel_layer()
+
+    for participant in conversation.participants.exclude(user=instance.sender):
+        async_to_sync(channel_layer.group_send)(
+            f"user_{participant.user.id}",
+            {
+                "type": "conversation_updated",
+                "conversation_id": conversation.id,
+            }
+        )
+
+    if instance.is_ai_generated:
+        return
 
     try:
         bots = conversation.participants.filter(user__is_bot=True)
