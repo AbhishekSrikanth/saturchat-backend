@@ -1,15 +1,14 @@
+import logging
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from chat.models import Message
 from chat.tasks.ai import process_ai_message_task
 
+logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Message)
 def handle_new_message(sender, instance, created, **kwargs):
-    """
-    After a message is created, check if it mentions a bot.
-    If so, queue the bot response task directly.
-    """
     if not created or instance.is_ai_generated:
         return
 
@@ -21,15 +20,22 @@ def handle_new_message(sender, instance, created, **kwargs):
     except Exception:
         return
 
+    # Find the admin user who should be the key holder
+    admin_participant = conversation.participants.filter(is_admin=True).first()
+    if not admin_participant:
+        return
+
+    admin_user = admin_participant.user
+
     for participant in bots:
-        user = participant.user
-        username = user.username.lower()
+        bot_user = participant.user
+        username = bot_user.username.lower()
 
         if username == 'chatgpt' and '@chatgpt' in content:
-            api_key = user.openai_api_key
+            api_key = admin_user.openai_api_key
             provider = 'openai'
         elif username == 'claude' and '@claude' in content:
-            api_key = user.anthropic_api_key
+            api_key = admin_user.anthropic_api_key
             provider = 'anthropic'
         else:
             continue
@@ -38,7 +44,7 @@ def handle_new_message(sender, instance, created, **kwargs):
             process_ai_message_task.delay(
                 conversation_id=conversation.id,
                 message_content=instance.encrypted_content,
-                user_id=user.id,
+                user_id=bot_user.id,  # bot is still the sender
                 ai_provider=provider,
-                api_key_encrypted=api_key
+                api_key=api_key
             )
