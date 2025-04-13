@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from encrypted_fields.fields import EncryptedCharField
 
 
 class User(AbstractUser):
@@ -12,8 +13,8 @@ class User(AbstractUser):
     is_bot = models.BooleanField(default=False)
 
     # Store encrypted API keys for external AI services
-    openai_api_key = models.CharField(max_length=255, blank=True, null=True)
-    anthropic_api_key = models.CharField(max_length=255, blank=True, null=True)
+    openai_api_key = EncryptedCharField(max_length=255, blank=True, null=True)
+    anthropic_api_key = EncryptedCharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return str(self.username)
