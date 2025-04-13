@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task
-def process_ai_message_task(conversation_id, message_content, user_id, ai_provider, api_key_encrypted):
+def process_ai_message_task(conversation_id, message_content, user_id, ai_provider, api_key):
     """
     Processes an LLM response and sends it as a bot user into the conversation.
     """
@@ -31,7 +31,6 @@ def process_ai_message_task(conversation_id, message_content, user_id, ai_provid
     except Conversation.DoesNotExist:
         return f"Conversation {conversation_id} not found"
 
-    api_key = decrypt_api_key(api_key_encrypted)
     if not api_key:
         return send_fallback_message(bot_user, conversation, "Sorry, I could not find an API Key.")
 
