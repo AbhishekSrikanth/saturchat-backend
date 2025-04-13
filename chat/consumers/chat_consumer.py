@@ -31,14 +31,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.channel_layer.group_add(f"user_{user.id}",self.channel_name)
         await self.update_user_status(user.id, True)
         await self.accept()
 
     async def disconnect(self, code):
         user = self.scope['user']
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        await self.channel_layer.group_discard(f"user_{user.id}",self.channel_name)
         if not user.is_anonymous:
             await self.update_user_status(user.id, False)
 
@@ -105,12 +103,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'user': event['user'],
             'reaction': event['reaction'],
             'message_id': event['message_id'],
-        }))
-
-    async def conversation_updated(self, event):
-        await self.send(text_data=json.dumps({
-            "type": "conversation_updated",
-            "conversation_id": event["conversation_id"],
         }))
 
 
