@@ -15,3 +15,4 @@ requests==2.32.3
 djangorestframework-simplejwt==5.5.0
 dj-rest-auth==7.0.1
 dj-rest-auth[with-social]
+django-fernet-encrypted-fields==0.3.0
