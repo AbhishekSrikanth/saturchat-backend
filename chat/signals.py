@@ -18,7 +18,7 @@ def handle_new_message(sender, instance, created, **kwargs):
     conversation = instance.conversation
     channel_layer = get_channel_layer()
 
-    for participant in conversation.participants.exclude(user=instance.sender):
+    for participant in conversation.participants.all():
         async_to_sync(channel_layer.group_send)(
             f"user_{participant.user.id}",
             {
