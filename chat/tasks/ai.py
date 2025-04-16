@@ -34,10 +34,8 @@ def process_ai_message_task(conversation_id, message_content, user_id, ai_provid
     if not strategy:
         return send_fallback_message(bot_user, conversation, f"Unknown AI provider: {ai_provider}")
     
-    # Add this inside the task
     recent_messages = Message.objects.filter(
-        conversation=conversation,
-        is_ai_generated=False
+        conversation=conversation
     ).order_by('-created_at')[:10][::-1]  # Reverse so oldest is first
 
     formatted_context = ""
