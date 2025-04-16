@@ -15,6 +15,8 @@ class User(AbstractUser):
     # Store encrypted API keys for external AI services
     openai_api_key = EncryptedCharField(max_length=255, blank=True, null=True)
     anthropic_api_key = EncryptedCharField(max_length=255, blank=True, null=True)
+    gemini_api_key = EncryptedCharField(max_length=255, blank=True, null=True)
+
 
     def __str__(self):
         return str(self.username)

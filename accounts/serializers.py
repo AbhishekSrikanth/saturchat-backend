@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'avatar', 'bio',
-            'openai_api_key', 'anthropic_api_key',
+            'openai_api_key', 'anthropic_api_key', 'gemini_api_key',
             'is_online', 'last_activity', 'is_bot',
         ]
         read_only_fields = ['id', 'is_online',
@@ -18,4 +18,5 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'openai_api_key': {'write_only': True},
             'anthropic_api_key': {'write_only': True},
+            'gemini_api_key': {'write_only': True},
         }
