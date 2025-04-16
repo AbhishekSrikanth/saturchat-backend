@@ -52,6 +52,9 @@ def handle_new_message(sender, instance, created, **kwargs):
         elif username == 'claude' and '@claude' in content:
             api_key = admin_user.anthropic_api_key
             provider = 'anthropic'
+        elif username == 'gemini' and '@gemini' in content:
+            api_key = admin_user.gemini_api_key
+            provider = 'gemini'
         else:
             continue
 
