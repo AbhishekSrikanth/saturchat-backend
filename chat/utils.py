@@ -4,29 +4,31 @@ from chat.models import Message
 
 
 def send_fallback_message(bot_user, conversation, text):
-    message = Message.objects.create(
+    Message.objects.create(
         conversation=conversation,
         sender=bot_user,
         encrypted_content=text,
         is_ai_generated=True
     )
 
-    # Send via WebSocket
+    return "Fallback message sent"
+
+def send_message_via_websocket(message):
+
     channel_layer = get_channel_layer()
-    group_name = f'chat_{conversation.id}'
+    group_name = f'chat_{message.conversation.id}'
 
     async_to_sync(channel_layer.group_send)(
         group_name,
         {
             'type': 'chat_message',
             'message': message.encrypted_content,
-            'sender': user_object_to_dict(bot_user),
+            'sender': user_object_to_dict(message.sender),
             'message_id': message.id,
             'timestamp': message.created_at.isoformat(),
         }
     )
 
-    return "Fallback message sent"
 
 
 def user_object_to_dict(user):
