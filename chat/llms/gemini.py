@@ -1,10 +1,10 @@
-import requests
 import logging
+import requests
 from chat.llms.base import AIProviderStrategy
 
 logger = logging.getLogger(__name__)
 
-class OpenAIStrategy(AIProviderStrategy):
+class GeminiStrategy(AIProviderStrategy):
     def generate_response(self, message, api_key):
         try:
             headers = {
@@ -12,19 +12,17 @@ class OpenAIStrategy(AIProviderStrategy):
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "gpt-3.5-turbo",
-                "messages": [{"role": "user", "content": message}],
-                "max_tokens": 150
+                "contents": [{"parts": [{"text": message}]}]
             }
             response = requests.post(
-                "https://api.openai.com/v1/chat/completions",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
                 headers=headers,
                 json=data,
                 timeout=10
             )
             if response.status_code == 200:
-                return response.json()['choices'][0]['message']['content']
-            logger.warning("OpenAI API failed: %s", response.text)
+                return response.json()['candidates'][0]['content']['parts'][0]['text']
+            logger.warning("Gemini API failed: %s", response.text)
         except Exception as e:
-            logger.exception("Error calling OpenAI: %s", str(e))
+            logger.exception("Error calling Gemini: %s", str(e))
         return None
