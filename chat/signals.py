@@ -63,7 +63,7 @@ def handle_new_message(sender, instance, created, **kwargs):
         process_ai_message_task.delay(
             conversation_id=conversation.id,
             message_content=instance.encrypted_content,
-            user_id=bot_user.id,  # bot is still the sender
+            user_id=bot_user.id,
             ai_provider=provider,
             api_key=api_key
         )
