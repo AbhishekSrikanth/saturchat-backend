@@ -60,11 +60,10 @@ def handle_new_message(sender, instance, created, **kwargs):
         else:
             continue
 
-        if api_key:
-            process_ai_message_task.delay(
-                conversation_id=conversation.id,
-                message_content=instance.encrypted_content,
-                user_id=bot_user.id,  # bot is still the sender
-                ai_provider=provider,
-                api_key=api_key
-            )
+        process_ai_message_task.delay(
+            conversation_id=conversation.id,
+            message_content=instance.encrypted_content,
+            user_id=bot_user.id,  # bot is still the sender
+            ai_provider=provider,
+            api_key=api_key
+        )
