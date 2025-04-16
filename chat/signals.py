@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from chat.models import Message
 from chat.tasks.ai import process_ai_message_task
+from chat.utils import send_message_via_websocket
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ def handle_new_message(sender, instance, created, **kwargs):
         )
 
     if instance.is_ai_generated:
+        send_message_via_websocket(instance)
         return
 
     try:
