@@ -33,8 +33,27 @@ def process_ai_message_task(conversation_id, message_content, user_id, ai_provid
     strategy = AI_PROVIDERS.get(ai_provider.lower())
     if not strategy:
         return send_fallback_message(bot_user, conversation, f"Unknown AI provider: {ai_provider}")
+    
+    # Add this inside the task
+    recent_messages = Message.objects.filter(
+        conversation=conversation,
+        is_ai_generated=False
+    ).order_by('-created_at')[:10][::-1]  # Reverse so oldest is first
 
-    response = strategy.generate_response(message_content, api_key)
+    formatted_context = ""
+    for msg in recent_messages:
+        sender = msg.sender.first_name or msg.sender.username
+        formatted_context += f"{sender}: {msg.encrypted_content}\n"
+
+    full_prompt = (
+        "You're an AI participant in a group chat. "
+        "Try to match the tone and context of the ongoing discussion. "
+        "Respond appropriately, maintaining the social norms of the group.\n\n"
+        f"{formatted_context}\n"
+        f"{bot_user.username}:"
+    )
+
+    response = strategy.generate_response(full_prompt, api_key)
 
     if not response:
         return send_fallback_message(bot_user, conversation, "Hmm, I couldn't generate a response. Please try again.")
