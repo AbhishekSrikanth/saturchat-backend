@@ -20,6 +20,12 @@ class Command(BaseCommand):
                 'last_name': 'AI',
                 'is_bot': True,
             },
+            {
+                'username': 'gemini',
+                'first_name': 'Gemini',
+                'last_name': 'AI',
+                'is_bot': True,
+            },
         ]
 
         for bot in bots:
