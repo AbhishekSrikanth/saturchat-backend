@@ -32,7 +32,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.update_user_status(user.id, True)
-        await self.accept()
+        await self.accept('access_token')
 
     async def disconnect(self, code):
         user = self.scope['user']
