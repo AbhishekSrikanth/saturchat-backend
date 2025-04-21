@@ -38,12 +38,11 @@ class Participant(models.Model):
 
 
 class Message(models.Model):
-    """Encrypted messages within a conversation."""
     conversation = models.ForeignKey(
         Conversation, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
-    encrypted_content = models.TextField()  # Encrypted message content
+    content = models.TextField()
     is_ai_generated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -62,7 +61,7 @@ class Attachment(models.Model):
     """Files attached to messages."""
     message = models.ForeignKey(
         Message, on_delete=models.CASCADE, related_name='attachments')
-    encrypted_file = models.FileField(upload_to='attachments/')
+    file = models.FileField(upload_to='attachments/')
     file_type = models.CharField(max_length=100)
     file_name = models.CharField(max_length=255)
 
@@ -84,15 +83,3 @@ class Reaction(models.Model):
 
     def __str__(self):
         return f"{self.reaction} by {self.user.username}"
-
-
-class EncryptionKey(models.Model):
-    """Public keys for end-to-end encryption."""
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='encryption_key')
-    public_key = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Key for {self.user.username}"

@@ -41,7 +41,7 @@ def process_ai_message_task(conversation_id, message_content, user_id, ai_provid
     formatted_context = ""
     for msg in recent_messages:
         sender = msg.sender.first_name or msg.sender.username
-        formatted_context += f"{sender}: {msg.encrypted_content}\n"
+        formatted_context += f"{sender}: {msg.content}\n"
 
     full_prompt = (
         "You're an AI participant in a group chat. "
@@ -59,7 +59,7 @@ def process_ai_message_task(conversation_id, message_content, user_id, ai_provid
     Message.objects.create(
         conversation=conversation,
         sender=bot_user,
-        encrypted_content=response,
+        content=response,
         is_ai_generated=True
     )
     return "AI response sent"

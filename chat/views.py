@@ -2,8 +2,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from django.db.models import Q
-from chat.models import Conversation, Message, Participant, Reaction, EncryptionKey
+from chat.models import Conversation, Message, Participant, Reaction
 from chat.serializers import (
     ConversationSerializer, MessageSerializer
 )
@@ -154,7 +153,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         message = Message.objects.create(
             conversation_id=conversation_pk,
             sender=request.user,
-            encrypted_content=request.data.get('encrypted_content'),
+            content=request.data.get('content'),
             has_attachment=request.data.get('has_attachment', False),
             attachment_type=request.data.get('attachment_type')
         )
@@ -191,22 +190,3 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Reaction removed'})
         except Reaction.DoesNotExist:
             return Response({'error': 'Reaction not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-class EncryptionKeyViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def create(self, request):
-        # Store user's public key
-        EncryptionKey.objects.update_or_create(
-            user=request.user,
-            defaults={'public_key': request.data.get('public_key')}
-        )
-        return Response({'message': 'Key stored successfully'})
-
-    def retrieve(self, request, pk=None):
-        try:
-            key = EncryptionKey.objects.get(user_id=pk)
-            return Response({'user_id': pk, 'public_key': key.public_key})
-        except EncryptionKey.DoesNotExist:
-            return Response({'error': 'Key not found'}, status=status.HTTP_404_NOT_FOUND)

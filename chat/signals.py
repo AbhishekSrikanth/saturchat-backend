@@ -15,7 +15,7 @@ def handle_new_message(sender, instance, created, **kwargs):
     if not created:
         return
 
-    content = instance.encrypted_content.lower()
+    content = instance.content.lower()
     conversation = instance.conversation
     channel_layer = get_channel_layer()
 
@@ -62,7 +62,7 @@ def handle_new_message(sender, instance, created, **kwargs):
 
         process_ai_message_task.delay(
             conversation_id=conversation.id,
-            message_content=instance.encrypted_content,
+            message_content=instance.content,
             user_id=bot_user.id,
             ai_provider=provider,
             api_key=api_key

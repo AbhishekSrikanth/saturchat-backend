@@ -111,11 +111,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return Participant.objects.filter(user_id=user_id, conversation_id=conversation_id).exists()
 
     @database_sync_to_async
-    def save_message(self, user_id, conversation_id, encrypted_content):
+    def save_message(self, user_id, conversation_id, content):
         message = Message.objects.create(
             conversation_id=conversation_id,
             sender_id=user_id,
-            encrypted_content=encrypted_content
+            content=content
         )
         conversation = Conversation.objects.get(id=conversation_id)
         conversation.updated_at = timezone.now()

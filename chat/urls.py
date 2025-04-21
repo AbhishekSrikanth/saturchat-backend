@@ -9,9 +9,6 @@ router.register(r'conversations', views.ConversationViewSet, basename='conversat
 conversation_router = routers.NestedSimpleRouter(router, r'conversations', lookup='conversation')
 conversation_router.register(r'messages', views.MessageViewSet, basename='conversation-messages')
 
-# Encryption keys endpoint
-router.register(r'encryption-keys', views.EncryptionKeyViewSet, basename='encryption-key')
-
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(conversation_router.urls)),

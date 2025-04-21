@@ -17,6 +17,6 @@ def clean_old_messages(days=30):
     old_messages = Message.objects.filter(created_at__lt=cutoff_date)
 
     # Keep metadata, but clear message content
-    old_messages.update(encrypted_content="[Expired Message]")
+    old_messages.update(content="[Expired Message]")
 
     return f"Cleaned {old_messages.count()} old messages"

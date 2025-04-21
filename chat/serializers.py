@@ -25,7 +25,7 @@ class ReactionSerializer(serializers.ModelSerializer):
 class AttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attachment
-        fields = ['id', 'file_type', 'file_name', 'encrypted_file']
+        fields = ['id', 'file_type', 'file_name', 'file']
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
@@ -34,7 +34,7 @@ class MessageSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'encrypted_content', 'created_at', 
+        fields = ['id', 'sender', 'content', 'created_at', 
                  'is_ai_generated', 'has_attachment', 'attachment_type',
                  'reactions', 'attachments']
 

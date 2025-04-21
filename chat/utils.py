@@ -7,7 +7,7 @@ def send_fallback_message(bot_user, conversation, text):
     Message.objects.create(
         conversation=conversation,
         sender=bot_user,
-        encrypted_content=text,
+        content=text,
         is_ai_generated=True
     )
 
@@ -22,7 +22,7 @@ def send_message_via_websocket(message):
         group_name,
         {
             'type': 'chat_message',
-            'message': message.encrypted_content,
+            'message': message.content,
             'sender': user_object_to_dict(message.sender),
             'message_id': message.id,
             'timestamp': message.created_at.isoformat(),
