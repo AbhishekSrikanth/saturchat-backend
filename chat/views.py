@@ -128,6 +128,17 @@ class ConversationViewSet(viewsets.ModelViewSet):
         except Participant.DoesNotExist:
             return Response({'error': 'User is not a participant'},
                             status=status.HTTP_404_NOT_FOUND)
+        
+    @action(detail=True, methods=['post'])
+    def leave(self, request, pk=None):
+        conversation = self.get_object()
+        try:
+            participant = Participant.objects.get(conversation=conversation, user=request.user)
+            participant.delete()
+            return Response({'message': 'Left the conversation'})
+        except Participant.DoesNotExist:
+            return Response({'error': 'You are not a participant'}, status=404)
+
 
 
 class MessageViewSet(viewsets.ModelViewSet):
