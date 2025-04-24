@@ -22,7 +22,7 @@ This is the Django-based backend API for **SaturChat**, a collaborative group ch
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/saturchat-backend.git
+git clone https://github.com/AbhishekSrikanth/saturchat-backend.git
 cd saturchat-backend
 ```
 
