@@ -41,6 +41,7 @@ docker-compose up --build
 ```
 
 This will start:
+
 - Django API via Daphne (ASGI)
 - Celery worker & beat
 - PostgreSQL
@@ -104,4 +105,3 @@ It is also CI/CD-ready with support for GitHub Container Registry and Docker Com
 ## License
 
 This project is licensed under the MIT License.
-
