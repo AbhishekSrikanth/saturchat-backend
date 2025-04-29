@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 class GeminiStrategy(AIProviderStrategy):
     def generate_response(self, message, api_key):
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={api_key}"
             headers = {
                 "Content-Type": "application/json",
             }
