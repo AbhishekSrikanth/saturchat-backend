@@ -6,6 +6,7 @@ from chat.models import Conversation, Message, Participant, Reaction
 from chat.serializers import (
     ConversationSerializer, MessageSerializer
 )
+from chat.utils import notify_conversation_update
 
 User = get_user_model()
 
@@ -79,6 +80,9 @@ class ConversationViewSet(viewsets.ModelViewSet):
                 pass
 
         serializer = self.get_serializer(conversation)
+
+        # Notify all participants about the new conversation
+        notify_conversation_update(conversation)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
@@ -97,6 +101,9 @@ class ConversationViewSet(viewsets.ModelViewSet):
                 conversation=conversation,
                 user=user
             )
+
+            # Notify all participants about the new participant
+            notify_conversation_update(conversation)
 
             return Response({'message': 'User added successfully'})
         except User.DoesNotExist:
@@ -123,21 +130,29 @@ class ConversationViewSet(viewsets.ModelViewSet):
                 user_id=user_id
             )
             participant.delete()
+
+            # Notify all participants about the participant removal
+            notify_conversation_update(conversation)
+
             return Response({'message': 'User removed successfully'})
         except Participant.DoesNotExist:
             return Response({'error': 'User is not a participant'},
                             status=status.HTTP_404_NOT_FOUND)
-        
+
     @action(detail=True, methods=['post'])
     def leave(self, request, pk=None):
         conversation = self.get_object()
         try:
-            participant = Participant.objects.get(conversation=conversation, user=request.user)
+            participant = Participant.objects.get(
+                conversation=conversation, user=request.user)
             participant.delete()
+
+            # Notify all participants about the participant leaving
+            notify_conversation_update(conversation)
+
             return Response({'message': 'Left the conversation'})
         except Participant.DoesNotExist:
             return Response({'error': 'You are not a participant'}, status=404)
-
 
 
 class MessageViewSet(viewsets.ModelViewSet):
