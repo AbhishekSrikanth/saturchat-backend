@@ -44,6 +44,7 @@ def user_object_to_dict(user):
         'avatar': user.avatar.url if user.avatar else None,
         'is_online': user.is_online,
         'last_activity': user.last_activity.isoformat() if user.last_activity else None,
+        'is_bot': user.is_bot,
     }
 
 
