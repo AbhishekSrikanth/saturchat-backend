@@ -46,7 +46,11 @@ def process_ai_message_task(conversation_id, message_content, user_id, ai_provid
     full_prompt = (
         "You're an AI participant in a group chat. "
         "Try to match the tone and context of the ongoing discussion. "
-        "Respond appropriately, maintaining the social norms of the group.\n\n"
+        "Respond appropriately, maintaining the social norms and the mood of the group.\n\n"
+        "If you don't know the answer, say 'I don't know' or ask for clarification.\n\n"
+        "If you've to generate code or JSON, do not exceed 80 chars per line.\n\n"
+        "Do not send a huge chunk of text. So stick to a general group chat norms.\n\n"
+        "Here is the recent conversation context:\n"
         f"{formatted_context}\n"
         f"{bot_user.username}:"
     )
