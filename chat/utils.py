@@ -13,6 +13,7 @@ def send_fallback_message(bot_user, conversation, text):
 
     return "Fallback message sent"
 
+
 def send_message_via_websocket(message):
 
     channel_layer = get_channel_layer()
@@ -30,7 +31,6 @@ def send_message_via_websocket(message):
     )
 
 
-
 def user_object_to_dict(user):
     """
     Convert a User object to a dictionary.
@@ -45,3 +45,18 @@ def user_object_to_dict(user):
         'is_online': user.is_online,
         'last_activity': user.last_activity.isoformat() if user.last_activity else None,
     }
+
+
+def notify_conversation_update(conversation):
+    """
+    Notify all participants of a conversation about an update.
+    """
+    channel_layer = get_channel_layer()
+    for participant in conversation.participants.all():
+        async_to_sync(channel_layer.group_send)(
+            f"user_{participant.user.id}",
+            {
+                "type": "conversation_updated",
+                "conversation_id": conversation.id,
+            }
+        )

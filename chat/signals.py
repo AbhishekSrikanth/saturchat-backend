@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from chat.models import Message
 from chat.tasks.ai import process_ai_message_task
-from chat.utils import send_message_via_websocket
+from chat.utils import send_message_via_websocket, notify_conversation_update
 
 logger = logging.getLogger(__name__)
 
@@ -17,16 +17,8 @@ def handle_new_message(sender, instance, created, **kwargs):
 
     content = instance.content.lower()
     conversation = instance.conversation
-    channel_layer = get_channel_layer()
 
-    for participant in conversation.participants.all():
-        async_to_sync(channel_layer.group_send)(
-            f"user_{participant.user.id}",
-            {
-                "type": "conversation_updated",
-                "conversation_id": conversation.id,
-            }
-        )
+    notify_conversation_update(conversation)
 
     if instance.is_ai_generated:
         send_message_via_websocket(instance)
