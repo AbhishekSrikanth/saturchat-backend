@@ -40,7 +40,7 @@ def process_ai_message_task(conversation_id, message_content, user_id, ai_provid
 
     formatted_context = ""
     for msg in recent_messages:
-        sender = msg.sender.first_name or msg.sender.username
+        sender = msg.sender.username
         formatted_context += f"{sender}: {msg.content}\n"
 
     full_prompt = (
