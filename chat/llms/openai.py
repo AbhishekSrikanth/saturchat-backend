@@ -12,7 +12,7 @@ class OpenAIStrategy(AIProviderStrategy):
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "gpt-3.5-turbo",
+                "model": "gpt-4.1-nano",
                 "messages": [{"role": "user", "content": message}],
                 "max_tokens": 150
             }
